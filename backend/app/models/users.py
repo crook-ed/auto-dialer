@@ -11,3 +11,4 @@ class User(Base):
     hashed_password = Column(String)
 
     contacts = relationship("Contact", back_populates="user")
+    contact_lists = relationship("ContactList", back_populates="user")
