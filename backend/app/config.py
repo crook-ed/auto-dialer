@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     TWILIO_ACCOUNT_SID: str
     TWILIO_AUTH_TOKEN: str
     ALLOWED_ORIGINS: list = ["http://localhost:3000"]
+    DATABASE_URL: str
 
     class Config:
         env_file = ".env"

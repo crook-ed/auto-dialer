@@ -2,6 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import contact_routes, contact_list_routes, auto_dialer_routes
 from app.config import settings
+from app.database import engine
+from app.models import contact, user, contact_list  # Import your models
+
+# Create database tables
+contact.Base.metadata.create_all(bind=engine)
+user.Base.metadata.create_all(bind=engine)
+contact_list.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
