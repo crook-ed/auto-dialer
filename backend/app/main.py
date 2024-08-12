@@ -1,7 +1,15 @@
+from .database import engine
+from .models import User, Contact, ContactList, contact_list_association
+from .routes import user_routes, contact_routes, contact_list_routes, auto_dialer_routes
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routes import user_routes, contact_routes, contact_list_routes, auto_dialer_routes
+
+# Create tables
+User.__table__.create(bind=engine, checkfirst=True)
+Contact.__table__.create(bind=engine, checkfirst=True)
+ContactList.__table__.create(bind=engine, checkfirst=True)
+contact_list_association.create(bind=engine, checkfirst=True)
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
