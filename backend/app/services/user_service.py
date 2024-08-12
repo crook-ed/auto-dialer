@@ -10,7 +10,6 @@ class UserService:
         self.user_repository = user_repository
 
     def create_user(self, username: str, email: str, password: str):
-        # Check if username or email already exists
         if self.user_repository.get_by_username(username):
             raise HTTPException(status_code=400, detail="Username already registered")
         if self.user_repository.get_by_email(email):

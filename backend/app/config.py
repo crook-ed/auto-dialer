@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     TWILIO_ACCOUNT_SID: str
     TWILIO_AUTH_TOKEN: str
     TWILIO_PHONE_NUMBER: str
+    SQLITE_WEB_PASSWORD: str 
 
     class Config:
         env_file = ".env"

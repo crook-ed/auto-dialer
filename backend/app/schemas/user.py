@@ -11,11 +11,13 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     id: int
+    username: str
+    email: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TokenData(BaseModel):
     username: str | None = None
