@@ -3,10 +3,6 @@ from sqlalchemy.orm import relationship
 from ..database import Base
 from .associations import contact_list_association
 
-# contact_list_association = Table('contact_list_association', Base.metadata,
-#     Column('contact_id', Integer, ForeignKey('contacts.id')),
-#     Column('contact_list_id', Integer, ForeignKey('contact_lists.id'))
-# )
 
 class ContactList(Base):
     __tablename__ = "contact_lists"

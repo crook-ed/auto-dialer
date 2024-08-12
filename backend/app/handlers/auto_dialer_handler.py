@@ -14,12 +14,12 @@ class AutoDialerHandler:
         contact_list_repo = ContactListRepository(db)
         call_record_repo = CallRecordRepository(db)
         auto_dialer_service = AutoDialerService(contact_list_repo, call_record_repo)
-        call_records = auto_dialer_service.initiate_calls(current_user["id"], request.contact_list_id, request.message)
+        call_records = await auto_dialer_service.initiate_calls(current_user["id"], request.contact_list_id, request.message)
         return [CallRecordResponse.from_orm(record) for record in call_records]
 
     @staticmethod
-    async def get_call_records(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    async def get_call_records(skip: int = 0, limit: int = 100, current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
         call_record_repo = CallRecordRepository(db)
         auto_dialer_service = AutoDialerService(None, call_record_repo)
-        call_records = auto_dialer_service.get_call_records(current_user["id"])
+        call_records = auto_dialer_service.get_call_records(current_user["id"], skip, limit)
         return [CallRecordResponse.from_orm(record) for record in call_records]

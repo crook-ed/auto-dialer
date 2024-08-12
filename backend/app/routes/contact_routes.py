@@ -9,12 +9,12 @@ from ..models.user import User
 router = APIRouter()
 
 @router.post("/", response_model=ContactResponse)
-async def create_contact(
+async def create_or_update_contact(
     contact: ContactCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return await ContactHandler.create_contact(contact, current_user, db)
+    return await ContactHandler.create_or_update_contact(contact, current_user, db)
 
 @router.get("/", response_model=list[ContactResponse])
 async def get_user_contacts(
@@ -23,7 +23,14 @@ async def get_user_contacts(
 ):
     return await ContactHandler.get_user_contacts(current_user, db)
 
-
+@router.put("/{contact_id}", response_model=ContactResponse)
+async def update_contact(
+    contact_id: int,
+    contact: ContactUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return await ContactHandler.update_contact(contact_id, contact, current_user, db)
 
 @router.delete("/{contact_id}")
 async def delete_contact(

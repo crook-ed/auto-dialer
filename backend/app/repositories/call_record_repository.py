@@ -22,3 +22,12 @@ class CallRecordRepository:
 
     def get_by_user(self, user_id: int):
         return self.db.query(CallRecord).filter(CallRecord.user_id == user_id).all()
+    
+    def update(self, call_record_id: int, **kwargs):
+        call_record = self.db.query(CallRecord).filter(CallRecord.id == call_record_id).first()
+        if call_record:
+            for key, value in kwargs.items():
+                setattr(call_record, key, value)
+            self.db.commit()
+            self.db.refresh(call_record)
+        return call_record

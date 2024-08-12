@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class ContactBase(BaseModel):
     first_name: str
@@ -7,13 +8,13 @@ class ContactBase(BaseModel):
     phone_number: str
 
 class ContactCreate(ContactBase):
-    pass
+    id: Optional[int] = None
 
-class ContactUpdate(ContactBase):
-    first_name: str | None = None
-    last_name: str | None = None
-    city: str | None = None
-    phone_number: str | None = None
+class ContactUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    city: Optional[str] = None
+    phone_number: Optional[str] = None
 
 class ContactResponse(ContactBase):
     id: int

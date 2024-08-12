@@ -10,5 +10,9 @@ async def initiate_calls(request: AutoDialerRequest, handler: AutoDialerHandler 
     return await handler.initiate_calls(request)
 
 @router.get("/records", response_model=List[CallRecordResponse])
-async def get_call_records(handler: AutoDialerHandler = Depends()):
-    return await handler.get_call_records()
+async def get_call_records(
+    skip: int = 0, 
+    limit: int = 100, 
+    handler: AutoDialerHandler = Depends()
+):
+    return await handler.get_call_records(skip=skip, limit=limit)
