@@ -1,30 +1,33 @@
 from sqlalchemy.orm import Session
-from ..models.contact import Contact
+from ..models import Contact
 
 class ContactRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, user_id: int, first_name: str, last_name: str, city: str, phone_number: str):
-        db_contact = Contact(user_id=user_id, first_name=first_name, last_name=last_name, city=city, phone_number=phone_number)
-        self.db.add(db_contact)
+    def create_or_update(self, user_id: int, first_name: str, last_name: str, city: str, phone_number: str):
+        contact = self.db.query(Contact).filter(Contact.user_id == user_id, Contact.phone_number == phone_number).first()
+        if contact:
+            contact.first_name = first_name
+            contact.last_name = last_name
+            contact.city = city
+        else:
+            contact = Contact(user_id=user_id, first_name=first_name, last_name=last_name, city=city, phone_number=phone_number)
+            self.db.add(contact)
         self.db.commit()
-        self.db.refresh(db_contact)
-        return db_contact
-
-    def get_by_id(self, contact_id: int):
-        return self.db.query(Contact).filter(Contact.id == contact_id).first()
+        self.db.refresh(contact)
+        return contact
 
     def get_all_by_user(self, user_id: int):
         return self.db.query(Contact).filter(Contact.user_id == user_id).all()
 
-    def update(self, contact_id: int, **kwargs):
-        self.db.query(Contact).filter(Contact.id == contact_id).update(kwargs)
-        self.db.commit()
-        return self.get_by_id(contact_id)
+    def get_by_id(self, contact_id: int, user_id: int):
+        return self.db.query(Contact).filter(Contact.id == contact_id, Contact.user_id == user_id).first()
 
-    def delete(self, contact_id: int):
-        contact = self.get_by_id(contact_id)
+    
+
+    def delete(self, contact_id: int, user_id: int):
+        contact = self.get_by_id(contact_id, user_id)
         if contact:
             self.db.delete(contact)
             self.db.commit()

@@ -4,6 +4,9 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from ..config import settings
 from ..schemas.user import TokenData
+from ..models.user import User  # Import your User model
+from ..database import get_db  # Import your database session
+from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/login")
 
@@ -18,7 +21,7 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -33,6 +36,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     
-    # Here you would typically fetch the user from the database
-    # For now, we'll just return the username
-    return {"username": token_data.username}
+    # Fetch the user from the database
+    user = db.query(User).filter(User.username == token_data.username).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+# Helper function to get user ID
+def get_current_user_id(current_user: User = Depends(get_current_user)) -> int:
+    return current_user.id
