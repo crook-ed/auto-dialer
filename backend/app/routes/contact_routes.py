@@ -1,24 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from ..database import get_db
-from ..services.contact_service import ContactService
-from ..repositories.contact_repository import ContactRepository
+from fastapi import APIRouter, Depends
+from ..handlers.contact_handler import ContactHandler
+from ..schemas.contact import ContactCreate, ContactUpdate, ContactResponse
+from typing import List
 
 router = APIRouter()
 
-@router.post("/contacts/")
-def create_contact(first_name: str, last_name: str, phone_number: str, user_id: int, db: Session = Depends(get_db)):
-    contact_repo = ContactRepository(db)
-    contact_service = ContactService(contact_repo)
-    return contact_service.create_contact(first_name, last_name, phone_number, user_id)
+@router.post("/", response_model=ContactResponse)
+async def create_contact(contact: ContactCreate, handler: ContactHandler = Depends()):
+    return await handler.create_contact(contact)
 
-@router.get("/contacts/{contact_id}")
-def read_contact(contact_id: int, db: Session = Depends(get_db)):
-    contact_repo = ContactRepository(db)
-    contact_service = ContactService(contact_repo)
-    contact = contact_service.get_contact(contact_id)
-    if contact is None:
-        raise HTTPException(status_code=404, detail="Contact not found")
-    return contact
+@router.get("/", response_model=List[ContactResponse])
+async def get_user_contacts(handler: ContactHandler = Depends()):
+    return await handler.get_user_contacts()
 
-# Add other routes as needed
+@router.put("/{contact_id}", response_model=ContactResponse)
+async def update_contact(contact_id: int, contact: ContactUpdate, handler: ContactHandler = Depends()):
+    return await handler.update_contact(contact_id, contact)
+
+@router.delete("/{contact_id}")
+async def delete_contact(contact_id: int, handler: ContactHandler = Depends()):
+    return await handler.delete_contact(contact_id)
