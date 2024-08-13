@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from ..handlers.auto_dialer_handler import AutoDialerHandler
 from ..schemas.auto_dialer import AutoDialerRequest, CallRecordResponse
 from typing import List
@@ -16,10 +16,13 @@ async def initiate_calls(
     db: Session = Depends(get_db)
 ):
     handler = AutoDialerHandler()
-    call_records = await handler.initiate_calls(request, current_user, db)
-    if not call_records:
-        return {"message": "No calls were initiated. Check server logs for details."}, 400
-    return call_records
+    try:
+        call_records = await handler.initiate_calls(request, current_user, db)
+        return call_records
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/records", response_model=List[CallRecordResponse])
 async def get_call_records(

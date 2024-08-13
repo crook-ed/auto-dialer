@@ -21,16 +21,16 @@ class ContactListService:
         contact_list = self.get_contact_list(contact_list_id)
         if contact_list.user_id != user_id:
             raise HTTPException(status_code=403, detail="Not authorized to modify this contact list")
-        return self.contact_list_repository.add_contact(contact_list_id, contact_id)
-
-    def get_contact_list(self, contact_list_id: int):
-        contact_list = self.contact_list_repository.get_by_id(contact_list_id)
-        if not contact_list:
-            raise HTTPException(status_code=404, detail="Contact list not found")
-        return contact_list
+        updated_list = self.contact_list_repository.add_contact(contact_list_id, contact_id, user_id)
+        if updated_list is None:
+            raise HTTPException(status_code=400, detail="Failed to add contact to the list. The contact may already be in the list or doesn't belong to you.")
+        return updated_list
 
     def remove_contact_from_list(self, contact_list_id: int, contact_id: int, user_id: int):
         contact_list = self.get_contact_list(contact_list_id)
         if contact_list.user_id != user_id:
             raise HTTPException(status_code=403, detail="Not authorized to modify this contact list")
-        return self.contact_list_repository.remove_contact(contact_list_id, contact_id)
+        updated_list = self.contact_list_repository.remove_contact(contact_list_id, contact_id, user_id)
+        if updated_list == contact_list:
+            raise HTTPException(status_code=400, detail="Failed to remove contact from the list. Make sure the contact belongs to you.")
+        return updated_list

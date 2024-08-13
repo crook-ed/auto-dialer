@@ -14,9 +14,8 @@ class ContactRepository:
             self.db.commit()
             self.db.refresh(contact)
             return contact
-        except IntegrityError as e:
+        except IntegrityError:
             self.db.rollback()
-            # Check if the error is due to a duplicate phone number for the same user
             existing_contact = self.db.query(Contact).filter(
                 and_(Contact.user_id == user_id, Contact.phone_number == phone_number)
             ).first()
@@ -24,17 +23,36 @@ class ContactRepository:
                 raise ValueError("A contact with this phone number already exists for this user")
             else:
                 # If it's not due to a duplicate for the same user, we can proceed
-                return self.create(user_id, first_name, last_name, city, phone_number)
+                self.db.add(contact)
+                self.db.commit()
+                self.db.refresh(contact)
+                return contact
 
     def update(self, contact_id: int, user_id: int, **kwargs):
         contact = self.get_by_id(contact_id, user_id)
         if contact:
-            for key, value in kwargs.items():
-                setattr(contact, key, value)
-            self.db.commit()
-            self.db.refresh(contact)
-        return contact
-    
+            try:
+                for key, value in kwargs.items():
+                    setattr(contact, key, value)
+                self.db.commit()
+                self.db.refresh(contact)
+                return contact
+            except IntegrityError:
+                self.db.rollback()
+                if 'phone_number' in kwargs:
+                    existing_contact = self.db.query(Contact).filter(
+                        and_(Contact.user_id == user_id, Contact.phone_number == kwargs['phone_number'])
+                    ).first()
+                    if existing_contact and existing_contact.id != contact_id:
+                        raise ValueError("A contact with this phone number already exists for this user")
+                # If it's not due to a duplicate for the same user, we can proceed with the update
+                for key, value in kwargs.items():
+                    setattr(contact, key, value)
+                self.db.commit()
+                self.db.refresh(contact)
+                return contact
+        return None
+
     def get_all_by_user(self, user_id: int):
         return self.db.query(Contact).filter(Contact.user_id == user_id).all()
 

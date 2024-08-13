@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Index
 from sqlalchemy.orm import relationship
 from ..database import Base
 
@@ -9,7 +9,7 @@ class Contact(Base):
     first_name = Column(String, index=True)
     last_name = Column(String, index=True)
     city = Column(String)
-    phone_number = Column(String, index=True)
+    phone_number = Column(String)
     user_id = Column(Integer, ForeignKey("users.id"))
 
     user = relationship("User", back_populates="contacts")
@@ -17,4 +17,5 @@ class Contact(Base):
 
     __table_args__ = (
         UniqueConstraint('user_id', 'phone_number', name='uq_user_phone'),
+        Index('ix_contacts_phone_number', 'phone_number'),
     )

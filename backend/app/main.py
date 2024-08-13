@@ -1,20 +1,21 @@
-from .database import engine
+from .database import engine, Base
 from .models import User, Contact, ContactList, contact_list_association
 from .routes import user_routes, contact_routes, contact_list_routes, auto_dialer_routes
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from app.database import Base, engine
+from sqlalchemy import inspect
 
-Base.metadata.create_all(bind=engine)
+def create_tables_if_not_exist():
+    inspector = inspect(engine)
+    existing_tables = inspector.get_table_names()
+    
+    for table in Base.metadata.tables.values():
+        if table.name not in existing_tables:
+            table.create(engine)
 
-
-
-# Create tables
-User.__table__.create(bind=engine, checkfirst=True)
-Contact.__table__.create(bind=engine, checkfirst=True)
-ContactList.__table__.create(bind=engine, checkfirst=True)
-contact_list_association.create(bind=engine, checkfirst=True)
+# Call the function to create tables if they don't exist
+create_tables_if_not_exist()
 
 app = FastAPI(title=settings.PROJECT_NAME)
 

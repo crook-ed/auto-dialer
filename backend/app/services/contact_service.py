@@ -5,12 +5,16 @@ class ContactService:
     def __init__(self, contact_repository: ContactRepository):
         self.contact_repository = contact_repository
 
+    
     def create_or_update_contact(self, user_id: int, contact_data: dict):
         contact_id = contact_data.pop('id', None)
         if contact_id:
             contact = self.contact_repository.get_by_id(contact_id, user_id)
             if contact:
-                return self.contact_repository.update(contact_id, user_id, **contact_data)
+                try:
+                    return self.contact_repository.update(contact_id, user_id, **contact_data)
+                except ValueError as e:
+                    raise HTTPException(status_code=400, detail=str(e))
             else:
                 raise HTTPException(status_code=404, detail="Contact not found")
         else:

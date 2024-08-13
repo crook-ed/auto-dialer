@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..database import get_db
 from ..services.auto_dialer_service import AutoDialerService
@@ -19,8 +19,13 @@ class AutoDialerHandler:
         contact_list_repo = ContactListRepository(db)
         call_record_repo = CallRecordRepository(db)
         auto_dialer_service = AutoDialerService(contact_list_repo, call_record_repo)
-        call_records = await auto_dialer_service.initiate_calls(current_user.id, request.contact_list_id, request.message)
-        return [CallRecordResponse.from_orm(record) for record in call_records]
+        try:
+            call_records = await auto_dialer_service.initiate_calls(current_user.id, request.contact_list_id, request.message)
+            return [CallRecordResponse.from_orm(record) for record in call_records]
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
     async def get_call_records(
