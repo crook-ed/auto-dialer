@@ -21,8 +21,12 @@ class CallRecordRepository:
         return db_call_record
 
     def get_by_user(self, user_id: int):
-        return self.db.query(CallRecord).filter(CallRecord.user_id == user_id).all()
-    
+        try:
+            return self.db.query(CallRecord).filter(CallRecord.user_id == user_id).all()
+        except Exception as e:
+            print(f"Error querying call records: {str(e)}")
+            return []  # Return an empty list if there's an error
+        
     def update(self, call_record_id: int, **kwargs):
         call_record = self.db.query(CallRecord).filter(CallRecord.id == call_record_id).first()
         if call_record:

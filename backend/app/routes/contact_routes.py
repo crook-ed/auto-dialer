@@ -23,15 +23,6 @@ async def get_user_contacts(
 ):
     return await ContactHandler.get_user_contacts(current_user, db)
 
-@router.put("/{contact_id}", response_model=ContactResponse)
-async def update_contact(
-    contact_id: int,
-    contact: ContactUpdate,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    return await ContactHandler.update_contact(contact_id, contact, current_user, db)
-
 @router.delete("/{contact_id}")
 async def delete_contact(
     contact_id: int,

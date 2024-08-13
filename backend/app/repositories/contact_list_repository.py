@@ -1,33 +1,36 @@
 from sqlalchemy.orm import Session
-from ..models.call_record import CallRecord
-from datetime import datetime
+from ..models.contact_list import ContactList
+from ..models.contact import Contact
 
 class ContactListRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, user_id: int, contact_id: int, call_datetime: datetime, duration: int, cost: float, status: str):
-        db_call_record = CallRecord(
-            user_id=user_id,
-            contact_id=contact_id,
-            call_datetime=call_datetime,
-            duration=duration,
-            cost=cost,
-            status=status
-        )
-        self.db.add(db_call_record)
+    def create(self, user_id: int, name: str):
+        db_contact_list = ContactList(user_id=user_id, name=name)
+        self.db.add(db_contact_list)
         self.db.commit()
-        self.db.refresh(db_call_record)
-        return db_call_record
+        self.db.refresh(db_contact_list)
+        return db_contact_list
 
-    def get_by_user(self, user_id: int):
-        return self.db.query(CallRecord).filter(CallRecord.user_id == user_id).all()
+    def get_by_id(self, contact_list_id: int):
+        return self.db.query(ContactList).filter(ContactList.id == contact_list_id).first()
 
-    def update(self, call_record_id: int, **kwargs):
-        call_record = self.db.query(CallRecord).filter(CallRecord.id == call_record_id).first()
-        if call_record:
-            for key, value in kwargs.items():
-                setattr(call_record, key, value)
+    def get_all_by_user(self, user_id: int):
+        return self.db.query(ContactList).filter(ContactList.user_id == user_id).all()
+
+    def add_contact(self, contact_list_id: int, contact_id: int):
+        contact_list = self.get_by_id(contact_list_id)
+        contact = self.db.query(Contact).filter(Contact.id == contact_id).first()
+        if contact_list and contact:
+            contact_list.contacts.append(contact)
             self.db.commit()
-            self.db.refresh(call_record)
-        return call_record
+        return contact_list
+
+    def remove_contact(self, contact_list_id: int, contact_id: int):
+        contact_list = self.get_by_id(contact_list_id)
+        contact = self.db.query(Contact).filter(Contact.id == contact_id).first()
+        if contact_list and contact:
+            contact_list.contacts.remove(contact)
+            self.db.commit()
+        return contact_list

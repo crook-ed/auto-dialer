@@ -23,7 +23,6 @@ class ContactHandler:
         contacts = contact_service.get_user_contacts(current_user.id)
         return [ContactResponse.from_orm(contact) for contact in contacts]
 
-
     @staticmethod
     async def delete_contact(contact_id: int, current_user: User, db: Session = Depends(get_db)):
         contact_repo = ContactRepository(db)

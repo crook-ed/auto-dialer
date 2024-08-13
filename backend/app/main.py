@@ -4,6 +4,11 @@ from .routes import user_routes, contact_routes, contact_list_routes, auto_diale
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
+from app.database import Base, engine
+
+Base.metadata.create_all(bind=engine)
+
+
 
 # Create tables
 User.__table__.create(bind=engine, checkfirst=True)
