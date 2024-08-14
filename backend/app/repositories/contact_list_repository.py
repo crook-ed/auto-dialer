@@ -16,8 +16,8 @@ class ContactListRepository:
         self.db.refresh(db_contact_list)
         return db_contact_list
 
-    def get_by_id(self, contact_list_id: int):
-        return self.db.query(ContactList).options(joinedload(ContactList.contacts)).filter(ContactList.id == contact_list_id).first()
+    # def get_by_id(self, contact_list_id: int):
+    #     return self.db.query(ContactList).options(joinedload(ContactList.contacts)).filter(ContactList.id == contact_list_id).first()
 
     def get_by_id(self, contact_list_id: int):
         contact_list = self.db.query(ContactList).options(joinedload(ContactList.contacts)).filter(ContactList.id == contact_list_id).first()
@@ -46,3 +46,6 @@ class ContactListRepository:
             contact_list.contacts.remove(contact)
             self.db.commit()
         return contact_list
+    
+    def get_all_by_user(self, user_id: int):
+        return self.db.query(ContactList).filter(ContactList.user_id == user_id).all()

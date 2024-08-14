@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     TWILIO_AUTH_TOKEN: str
     TWILIO_PHONE_NUMBER: str
     SQLITE_WEB_PASSWORD: str 
+    ALGORITHM: str = "HS256" 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30 
 
     class Config:
         env_file = ".env"

@@ -63,9 +63,13 @@ class AutoDialerService:
                 from_=settings.TWILIO_PHONE_NUMBER
             )
             logger.info(f"Call initiated to {to_number} with message: {message}")
+            logger.info(f"Call SID: {call.sid}")
+            logger.info(f"Call status: {call.status}")
             return call
         except TwilioRestException as e:
             logger.error(f"Twilio error: {e}")
+            logger.error(f"Error code: {e.code}")
+            logger.error(f"Error message: {e.msg}")
             raise
 
     def get_call_records(self, user_id: int):
